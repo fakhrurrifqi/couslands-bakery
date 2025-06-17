@@ -5,7 +5,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SlideInPanel from "@/components/SlideInPanel";
 import CartPanelContent from "@/components/CartPanelContent";
-import { Input } from "@/components/ui/input";
+import AccountPanelContent from "@/components/AccountPanelContent";
+import SearchPanelContent from "@/components/SearchPanelContent";
 
 const ClientLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const { activePanel, closePanel } = useAppContext();
@@ -27,17 +28,8 @@ const ClientLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <div>
         <SlideInPanel isOpen={!!activePanel}>
           {activePanel === "cart" && <CartPanelContent />}
-          {activePanel === "account" && (
-            <div>
-              <h2 className="text-xl font-semibold">Acount details go here</h2>
-            </div>
-          )}
-          {activePanel === "search" && (
-            <div>
-              <h2 className="text-xl font-semibold">Search</h2>
-              <Input placeholder="Search for products..." />
-            </div>
-          )}
+          {activePanel === "account" && <AccountPanelContent />}
+          {activePanel === "search" && <SearchPanelContent />}
         </SlideInPanel>
       </div>
     </div>

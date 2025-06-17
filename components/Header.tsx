@@ -10,9 +10,17 @@ import Image from "next/image";
 import { DesktopNavMenu } from "./DesktopNavMenu";
 import { MobileNavMenu } from "./MobileNavMenu";
 import { NavIcons } from "@/components/NavIcons";
+import { Moon, Sun } from "lucide-react";
 
 const Header = () => {
-  const { setIsMobileMenuOpen, isMobileMenuOpen } = useAppContext();
+  const {
+    setIsMobileMenuOpen,
+    isMobileMenuOpen,
+    openPanel,
+    cartCount,
+    toggleTheme,
+    theme,
+  } = useAppContext();
 
   return (
     <header className="bg-paletteMaroonDarkest text-paletteTextLight top-0 z-50 sticky shadow-md">
@@ -46,10 +54,18 @@ const Header = () => {
               <NavIcons />
             </div>
             <Button
-              className="lg:hidden p-2 rounded-md text-white hover:bg-paletteMaroonDark transition"
+              className="relative lg:hidden cp-2 rounded-md text-white hover:bg-paletteMaroonDark transition"
               aria-label="Cart"
+              onClick={() => openPanel("cart")}
             >
-              <ShoppingCart size={18} />
+              <span className="relative">
+                <ShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 size-4 rounded-full bg-paletteMaroonRose text-[10px] font-bold text-white flex items-center justify-center leading-none pointer-events-none">
+                    {cartCount}
+                  </span>
+                )}
+              </span>
             </Button>
           </div>
         </div>
@@ -75,6 +91,17 @@ const Header = () => {
               <MobileNavMenu />
 
               <hr className="border-white/20" />
+
+              <Button
+                variant="ghost"
+                onClick={toggleTheme}
+                className="flex w-full justify-start items-center gap-2 !px-4 !py-3 bg-paletteMaroonDarkest hover:bg-paletteMaroonDark/95 transition rounded-md text-left text-white cursor-pointer"
+              >
+                {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+                <span>
+                  Switch to {theme === "light" ? "Dark" : "Light"} Mode
+                </span>
+              </Button>
 
               <Link
                 href="/account"

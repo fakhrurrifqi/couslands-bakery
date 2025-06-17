@@ -29,7 +29,7 @@ export const FeaturedProductsSection = () => {
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {productsForCards.map((product) => (
-          <ProductCard key={product.id} {...product} />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
       <Link href="/products" className="flex justify-center mt-6">
