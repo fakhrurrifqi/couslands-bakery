@@ -31,3 +31,8 @@ export const signUpFormSchema = z
     message: "Password do not match.",
     path: ["confirmPassword"],
   });
+
+export const verifyOtpFormSchema = z.object({
+  email: z.string().email(),
+  token: z.string().min(6, { message: "Your code must be 6 digits." }).max(6),
+});

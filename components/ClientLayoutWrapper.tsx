@@ -7,8 +7,14 @@ import SlideInPanel from "@/components/SlideInPanel";
 import CartPanelContent from "@/components/CartPanelContent";
 import AccountPanelContent from "@/components/AccountPanelContent";
 import SearchPanelContent from "@/components/SearchPanelContent";
+import type { User } from "@supabase/supabase-js";
 
-const ClientLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
+interface ClientLayoutWrapperProps {
+  children: React.ReactNode;
+  user: User | null;
+}
+
+const ClientLayoutWrapper = ({ children, user }: ClientLayoutWrapperProps) => {
   const { activePanel, closePanel } = useAppContext();
   return (
     <div className="flex flex-col min-h-screen">
@@ -28,7 +34,7 @@ const ClientLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <div>
         <SlideInPanel isOpen={!!activePanel}>
           {activePanel === "cart" && <CartPanelContent />}
-          {activePanel === "account" && <AccountPanelContent />}
+          {activePanel === "account" && <AccountPanelContent user={user} />}
           {activePanel === "search" && <SearchPanelContent />}
         </SlideInPanel>
       </div>

@@ -1,7 +1,14 @@
 "use server";
 
-import { signInFormSchema, signUpFormSchema } from "@/lib/validations/auth";
+import {
+  signInFormSchema,
+  signUpFormSchema,
+  verifyOtpFormSchema,
+} from "@/lib/validations/auth";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { EmailOtpType } from "@supabase/supabase-js";
 
 export interface AuthFormState {
   message: string;
@@ -10,15 +17,18 @@ export interface AuthFormState {
     email?: string[];
     password?: string[];
     confirmPassword?: string[];
+    token?: string[];
     _form?: string[];
   };
   success?: boolean;
+  email?: string;
 }
 
 export async function signInAction(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const supabase = await createClient();
   const validateFields = signInFormSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -33,29 +43,27 @@ export async function signInAction(
 
   const { email, password } = validateFields.data;
 
-  try {
-    console.log("Attempting sign in with:", { email, password });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    redirect("/account");
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
+  if (error) {
     return {
-      message: "Sign in successfull",
-      success: true,
-    };
-  } catch (error) {
-    console.error("Sign in error:", error);
-    return {
-      message: "Sign-in failed. Please check your credentials and try again.",
+      message: "Sign-in failed.",
+      errors: { _form: [error.message] },
       success: false,
-      errors: { _form: ["Invalid email or password."] },
     };
   }
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 export async function signUpAction(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const supabase = await createClient();
   const validateFields = signUpFormSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -70,21 +78,66 @@ export async function signUpAction(
 
   const { name, email, password } = validateFields.data;
 
-  try {
-    console.log("Attempting to sign up with:", { name, email, password });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    redirect("/account");
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name } },
+  });
 
+  if (error) {
     return {
-      message: "Account created successfully! Redirecting...",
-      success: true,
+      message: "Sign-up failed.",
+      errors: { _form: [error.message] },
+      success: false,
     };
-  } catch (error) {
-    console.error("Sign up error:", error);
   }
+
   return {
-    message: "Sign-up failed. Please try again later.",
-    success: false,
-    errors: { _form: ["An unexpected error occurred."] },
+    message: "Account created! Please check your email to confirm.",
+    success: true,
+    email: email,
   };
+}
+
+export async function verifyOtpAction(
+  prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  const supabase = await createClient();
+  const validatedFields = verifyOtpFormSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
+
+  if (!validatedFields.success) {
+    return {
+      message: "Invalid form data",
+      errors: validatedFields.error.flatten().fieldErrors,
+      success: false,
+    };
+  }
+
+  const { email, token } = validatedFields.data;
+  const type: EmailOtpType = "signup";
+
+  const { error } = await supabase.auth.verifyOtp({ email, token, type });
+
+  if (error) {
+    return {
+      message: "Verification failed. The code may be invalid or expired.",
+      errors: { _form: [error.message] },
+      success: false,
+    };
+  }
+
+  redirect("/account");
+}
+
+export async function signOutAction() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("Sign Out error:", error);
+  }
+  redirect("/signin");
 }

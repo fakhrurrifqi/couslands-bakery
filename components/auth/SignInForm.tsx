@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { signInAction } from "@/app/(auth)/actions";
 import {
   Form,
@@ -31,13 +31,11 @@ const SignInForm = () => {
     defaultValues: { email: "", password: "" },
   });
 
-  const [state, formAction] = useFormState(signInAction, initialState);
+  const [state, formAction] = useActionState(signInAction, initialState);
 
   useEffect(() => {
     if (state.success) {
-      setTimeout(() => {
-        router.push("/account");
-      }, 1000);
+      router.push("/account");
     }
 
     if (state.errors) {

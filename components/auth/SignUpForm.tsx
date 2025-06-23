@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { signUpFormSchema } from "@/lib/validations/auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { signUpAction, AuthFormState } from "@/app/(auth)/actions";
 import {
   Form,
@@ -35,13 +35,11 @@ const SignUpForm = () => {
     },
   });
 
-  const [state, formAction] = useFormState(signUpAction, initialState);
+  const [state, formAction] = useActionState(signUpAction, initialState);
 
   useEffect(() => {
-    if (state.success) {
-      setTimeout(() => {
-        router.push("/account");
-      }, 1000);
+    if (state.success && state.email) {
+      router.push(`/auth/confirm?email=${encodeURIComponent(state.email)}`);
     }
     if (state.errors) {
       const errors = state.errors;
@@ -144,7 +142,10 @@ const SignUpForm = () => {
           )}
         />
 
-        <SubmitButton pendingText="Creating Account...">
+        <SubmitButton
+          pendingText="Creating Account..."
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-paletteMaroonMedium hover:bg-paletteMaroonDark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-paletteMaroonMedium dark:focus:ring-offset-paletteMaroonDarkest"
+        >
           Create Account
         </SubmitButton>
 

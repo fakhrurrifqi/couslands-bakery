@@ -3,6 +3,7 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { Raleway } from "next/font/google";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
+import { createClient } from "@/lib/supabase/server";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -17,16 +18,20 @@ export const metadata: Metadata = {
   description: "Delicious treats, cakes, and pastries from Cousland's Bakery.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return (
     <html lang="en" className={`${raleway.variable} antialiased`}>
       <body className="bg-palettePinkLighter dark:bg-paletteTextDark">
         <AppProvider>
-          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+          <ClientLayoutWrapper user={user}>{children}</ClientLayoutWrapper>
         </AppProvider>
       </body>
     </html>
