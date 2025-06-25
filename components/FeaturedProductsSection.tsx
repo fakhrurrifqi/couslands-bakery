@@ -1,6 +1,7 @@
 import React from "react";
 import { ProductCard } from "./ProductCard";
-import { getFeaturedProducts, Product } from "@/lib/product";
+import { getFeaturedProducts } from "@/lib/data";
+import { Product } from "@/lib/types";
 import Link from "next/link";
 
 const adaptProductToCardProps = (product: Product): Product => ({
@@ -8,15 +9,13 @@ const adaptProductToCardProps = (product: Product): Product => ({
   name: product.name,
   description: product.description,
   price: product.price,
-  imageUrl: product.imageUrl,
-  altText: product.altText,
+  image_url: product.image_url,
+  alt_text: product.alt_text,
 });
 
-export const FeaturedProductsSection = () => {
-  const featuredProductsData: Product[] = getFeaturedProducts();
-  const productsForCards: Product[] = featuredProductsData.map(
-    adaptProductToCardProps
-  );
+export default async function FeaturedProductsSection() {
+  const featuredProductsData = await getFeaturedProducts();
+  const productsForCards = featuredProductsData.map(adaptProductToCardProps);
 
   if (!productsForCards || productsForCards.length === 0) {
     return <p>No featured products at the moment.</p>;
@@ -39,4 +38,4 @@ export const FeaturedProductsSection = () => {
       </Link>
     </div>
   );
-};
+}

@@ -9,7 +9,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { initialProducts, Product } from "@/lib/product";
+import { Product } from "@/lib/types";
 
 export type Theme = "light" | "dark";
 export type SectionID = "home" | "products" | "about" | "contact";
@@ -49,10 +49,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const [activePanel, setActivePanel] = useState<PanelType>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { ...initialProducts[0], quantity: 2 },
-    { ...initialProducts[2], quantity: 1 },
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cartItems.reduce(

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Product } from "@/lib/product";
+import { Product } from "@/lib/types";
 import { ProductCard } from "./ProductCard";
 
 interface ProductsContentProps {
@@ -13,8 +13,8 @@ const adaptProductToCardProps = (product: Product): Product => ({
   name: product.name,
   description: product.description,
   price: product.price,
-  imageUrl: product.imageUrl,
-  altText: product.altText,
+  image_url: product.image_url,
+  alt_text: product.alt_text,
 });
 
 const ProductsContent: React.FC<ProductsContentProps> = ({ products }) => {
@@ -40,7 +40,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ products }) => {
           favorite treat today!
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:gris-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
         {productsForCards.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

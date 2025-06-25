@@ -1,6 +1,6 @@
 import HeroSection from "./HeroSection";
 import TestimonialSection from "./TestimonialSection";
-import { FeaturedProductsSection } from "./FeaturedProductsSection";
+import FeaturedProductsSection from "@/components/FeaturedProductsSection";
 
 const HomeContents = () => {
   return (

@@ -9,12 +9,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import SubmitButton from "@/components/ui/SubmitButton";
 
 type VerifyOtpFormValues = z.infer<typeof verifyOtpFormSchema>;
@@ -55,16 +60,33 @@ const VerifyOtpForm = ({ email }: VerifyOtpFormProps) => {
                 Verification Code
               </FormLabel>
               <FormControl>
-                <Input placeholder="123456" {...field} />
+                <InputOTP maxLength={6} {...field}>
+                  <InputOTPGroup className="w-full flex justify-center">
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
               </FormControl>
+              <FormDescription className="text-center text-sm mb-3">
+                Enter the 6-digit code sent to your email.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <SubmitButton pendingText="Verifying...">Verify Account</SubmitButton>
-        {state?.errors?._form && (
-          <p className="mt-4 text-sm font-medium text-paletteError">
-            {state.errors._form[0]}
+        <SubmitButton
+          pendingText="Verifying..."
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-paletteMaroonMedium hover:bg-paletteMaroonDark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-paletteMaroonMedium dark:focus:ring-offset-paletteMaroonDarkest"
+        >
+          Verify Account
+        </SubmitButton>
+        {form.formState.errors.root?.serverError && (
+          <p className="mt-4 text-sm font-medium text-paletteError text-center">
+            {form.formState.errors.root.serverError.message}
           </p>
         )}
       </form>

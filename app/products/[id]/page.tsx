@@ -1,24 +1,39 @@
 import React from "react";
 import type { Metadata } from "next";
-import { getProductById, getAllProducts } from "@/lib/product";
+import { getProductById, getAllProducts } from "@/lib/data";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { createClient as createRequestScopeClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function generateStaticParams() {
-  const products = getAllProducts();
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+
+  const products = await getAllProducts(supabase);
+
   return products.map((product) => ({
-    id: product.id,
+    id: String(product.id),
   }));
 }
 
-export async function geenrateMetaData({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  const product = getProductById(params.id);
+export async function generateMetadata(
+  {
+    params,
+  }: {
+    params: { id: string };
+  }
+): Promise<Metadata> {
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+
+  const product = await getProductById(supabase, params.id);
 
   if (!product) {
     return {
@@ -38,8 +53,10 @@ export default async function ProductDetailPage({
 }: {
   params: { id: string };
 }) {
-  const { id } = await params;
-  const product = getProductById(id);
+  const { id } = params;
+  const supabase = await createRequestScopeClient();
+
+  const product = await getProductById(supabase, id);
 
   if (!product) {
     notFound();
@@ -50,8 +67,8 @@ export default async function ProductDetailPage({
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         <div className="relative aspect-square">
           <Image
-            src={product.imageUrl}
-            alt={product.altText}
+            src={product.image_url}
+            alt={product.alt_text}
             fill
             className="object-cover rounded-lg shadow-lg"
             priority

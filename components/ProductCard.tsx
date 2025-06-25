@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { Product } from "@/lib/product";
+import { Product } from "@/lib/types";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 
@@ -26,8 +26,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       <div className="relative w-full h-56">
         <Image
-          src={product.imageUrl}
-          alt={product.altText}
+          src={product.image_url}
+          alt={product.alt_text}
           width={400}
           height={300}
           className="object-cover w-full h-full"
