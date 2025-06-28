@@ -10,3 +10,10 @@ export interface Product {
   category?: ProductCategory;
   is_featured?: boolean;
 }
+
+export interface CartItem {
+  id: number;
+  user_id: string;
+  quantity: number;
+  products: Product;
+}

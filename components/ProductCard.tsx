@@ -6,17 +6,18 @@ import { Button } from "./ui/button";
 import { Product } from "@/lib/types";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
+import { Loader2 } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useAppContext();
+  const { addToCart, isCartPending } = useAppContext();
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product, 1);
+    addToCart(product.id);
   };
 
   return (
@@ -51,8 +52,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </p>
           <Button
             onClick={handleAddToCart}
+            disabled={isCartPending}
             className="w-full bg-paletteMaroonMedium hover:bg-paletteMaroonDark text-white font-semibold py-2 px-4 rounded-lg"
           >
+            {isCartPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
             Add to Cart
           </Button>
         </div>

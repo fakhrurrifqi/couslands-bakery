@@ -4,6 +4,7 @@ import { AppProvider } from "@/context/AppContext";
 import { Raleway } from "next/font/google";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import { createClient } from "@/lib/supabase/server";
+import { getCartItems } from "@/lib/data";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -27,10 +28,11 @@ export default async function RootLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const initialCartItems = await getCartItems();
   return (
     <html lang="en" className={`${raleway.variable} antialiased`}>
       <body className="bg-palettePinkLighter dark:bg-paletteTextDark">
-        <AppProvider>
+        <AppProvider initialCart={initialCartItems}>
           <ClientLayoutWrapper user={user}>{children}</ClientLayoutWrapper>
         </AppProvider>
       </body>

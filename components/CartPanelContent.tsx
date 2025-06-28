@@ -23,20 +23,22 @@ const CartPanelContent = () => {
             {cartItems.map((item) => (
               <div key={item.id} className="flex items-center space-x-4">
                 <Image
-                  src={item.imageUrl}
-                  alt={item.altText}
+                  src={item.products.image_url}
+                  alt={item.products.alt_text}
                   width={64}
                   height={64}
                   className="rounded-md object-cover"
                 />
                 <div className="flex-grow">
-                  <h3 className="font-semibold text-sm">{item.name}</h3>
+                  <h3 className="font-semibold text-sm">
+                    {item.products.name}
+                  </h3>
                   <p className="text-sm text-paletteGrayDark dark:text-paletteGrayLight">
                     {item.quantity} x{" "}
                     {new Intl.NumberFormat("en-US", {
                       style: "currency",
                       currency: "USD",
-                    }).format(item.price)}
+                    }).format(item.products.price)}
                   </p>
                 </div>
                 <Button

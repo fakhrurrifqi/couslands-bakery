@@ -8,16 +8,20 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useTransition,
 } from "react";
-import { Product } from "@/lib/types";
+import type { CartItem } from "@/lib/types";
+import {
+  addToCartAction,
+  removeFromCartAction,
+  updateCartQuantityAction,
+} from "@/app/cart/actions";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export type Theme = "light" | "dark";
 export type SectionID = "home" | "products" | "about" | "contact";
 type PanelType = "cart" | "account" | "search" | null;
-
-export interface CartItem extends Product {
-  quantity: number;
-}
 
 interface AppContextType {
   theme: Theme;
@@ -31,63 +35,74 @@ interface AppContextType {
   activePanel: PanelType;
 
   cartItems: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateCartQuantity: (productId: string, quantity: number) => void;
+  addToCart: (productId: string) => Promise<void>;
+  removeFromCart: (cartItemId: number) => Promise<void>;
+  updateCartQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   cartCount: number;
   cartTotal: number;
+  isCartPending: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 interface AppProviderProps {
   children: ReactNode;
+  initialCart: CartItem[];
 }
 
-export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+export const AppProvider: React.FC<AppProviderProps> = ({
+  children,
+  initialCart,
+}) => {
   const [theme, setTheme] = useState<Theme>("light");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const [activePanel, setActivePanel] = useState<PanelType>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(initialCart);
+
+  const [isCartPending, startTransition] = useTransition();
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.products.price * item.quantity,
     0
   );
 
-  const addToCart = (product: Product, quantity: number = 1) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+  useEffect(() => {
+    setCartItems(initialCart);
+  }, [initialCart]);
+
+  const addToCart = async (productId: string) => {
+    startTransition(async () => {
+      const result = await addToCartAction(productId);
+      if (result.success) {
+        toast.success(result.message);
+        openPanel("cart");
+      } else {
+        toast.error(result.message);
       }
-      return [...prevItems, { ...product, quantity }];
     });
     setActivePanel("cart");
   };
 
-  const removeFromCart = (productId: string) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => item.id !== productId)
-    );
+  const removeFromCart = async (cartItemId: number) => {
+    startTransition(async () => {
+      const result = await removeFromCartAction(cartItemId);
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    });
   };
 
-  const updateCartQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      setCartItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === productId ? { ...item, quantity } : item
-        )
-      );
-    }
+  const updateCartQuantity = async (cartItemId: number, quantity: number) => {
+    startTransition(async () => {
+      const result = await updateCartQuantityAction(cartItemId, quantity);
+      if (!result.success) {
+        toast.error(result.message);
+      }
+    });
   };
 
   useEffect(() => {
@@ -135,8 +150,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         updateCartQuantity,
         cartCount,
         cartTotal,
+        isCartPending,
       }}
     >
+      <Toaster />
       {children}
     </AppContext.Provider>
   );
