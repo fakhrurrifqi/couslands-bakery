@@ -15,6 +15,7 @@ const adaptProductToCardProps = (product: Product): Product => ({
   price: product.price,
   image_url: product.image_url,
   alt_text: product.alt_text,
+  created_at: product.created_at,
 });
 
 const ProductsContent: React.FC<ProductsContentProps> = ({ products }) => {

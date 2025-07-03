@@ -5,15 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { CartItem } from "@/lib/types";
 
-interface CartContentProps {
-  initialCartItems: CartItem[];
-}
 
-const CartContent: React.FC<CartContentProps> = () => {
-  const { updateCartQuantity, cartTotal } = useAppContext();
-  const { cartItems } = useAppContext();
+
+const CartContent= () => {
+  const { updateCartQuantity, cartTotal, cartItems } = useAppContext();
 
   const handleQuantityChange = (cartItemid: number, newQuantity: number) => {
     const quantity = parseInt(String(newQuantity), 10);

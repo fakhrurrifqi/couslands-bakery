@@ -5,19 +5,20 @@ import React, {
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useState,
   useTransition,
 } from "react";
-import type { CartItem } from "@/lib/types";
+import type { CartItem, Product } from "@/lib/types";
 import {
   addToCartAction,
   removeFromCartAction,
   updateCartQuantityAction,
 } from "@/app/cart/actions";
+import { getCartItems } from "@/lib/data";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 
 export type Theme = "light" | "dark";
 export type SectionID = "home" | "products" | "about" | "contact";
@@ -35,12 +36,13 @@ interface AppContextType {
   activePanel: PanelType;
 
   cartItems: CartItem[];
-  addToCart: (productId: string) => Promise<void>;
+  addToCart: (produc: Product) => Promise<void>;
   removeFromCart: (cartItemId: number) => Promise<void>;
   updateCartQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   cartCount: number;
   cartTotal: number;
   isCartPending: boolean;
+  refetchCart: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -72,21 +74,54 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     setCartItems(initialCart);
   }, [initialCart]);
 
-  const addToCart = async (productId: string) => {
+  const refetchCart = useCallback(async () => {
+    try {
+      const updatedItems = await getCartItems();
+      setCartItems(updatedItems);
+    } catch (error) {
+      console.error("Failed to refetch cart", error);
+      toast.error("Could not update cart. Please refresh the page.");
+    }
+  }, []);
+
+  const addToCart = async (product: Product) => {
     startTransition(async () => {
-      const result = await addToCartAction(productId);
+      setCartItems((prevItems) => {
+        const existingItem = prevItems.find(
+          (item) => item.products.id === product.id
+        );
+        if (existingItem) {
+          return prevItems.map((item) =>
+            item.products.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        }
+
+        const newCartItem: CartItem = {
+          id: Math.random(),
+          user_id: "",
+          quantity: 1,
+          products: product,
+        };
+        return [...prevItems, newCartItem];
+      });
+
+      const result = await addToCartAction(product.id);
       if (result.success) {
         toast.success(result.message);
-        openPanel("cart");
       } else {
         toast.error(result.message);
       }
     });
-    setActivePanel("cart");
+    openPanel("cart");
   };
 
   const removeFromCart = async (cartItemId: number) => {
     startTransition(async () => {
+      setCartItems((prevItems) =>
+        prevItems.filter((item) => item.id !== cartItemId)
+      );
       const result = await removeFromCartAction(cartItemId);
       if (result.success) {
         toast.success(result.message);
@@ -98,6 +133,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
   const updateCartQuantity = async (cartItemId: number, quantity: number) => {
     startTransition(async () => {
+      if (quantity <= 0) {
+        removeFromCart(cartItemId);
+        return;
+      }
+
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === cartItemId ? { ...item, quantity } : item
+        )
+      );
+
       const result = await updateCartQuantityAction(cartItemId, quantity);
       if (!result.success) {
         toast.error(result.message);
@@ -151,9 +197,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         cartCount,
         cartTotal,
         isCartPending,
+        refetchCart,
       }}
     >
-      <Toaster />
       {children}
     </AppContext.Provider>
   );

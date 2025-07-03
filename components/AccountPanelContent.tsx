@@ -3,12 +3,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import type { User } from "@supabase/supabase-js";
 import { signOutAction } from "@/app/(auth)/actions";
 import { useAppContext } from "@/context/AppContext";
+import { SerializableUser } from "@/lib/types";
 
 interface AccountPanelContentProps {
-  user: User | null; // Accept the user object as a prop
+  user: SerializableUser | null; // Accept the user object as a prop
 }
 
 const AccountPanelContent: React.FC<AccountPanelContentProps> = ({ user }) => {
@@ -22,10 +22,7 @@ const AccountPanelContent: React.FC<AccountPanelContentProps> = ({ user }) => {
       {user ? (
         <div className="flex flex-col gap-4">
           <p className="text-sm text-paletteGrayDark dark:text-paletteGrayLight">
-            Welcome back,{" "}
-            <span className="font-medium">
-              {user.user_metadata?.name || user.email}
-            </span>
+            Welcome back, <span className="font-medium">{user.name}</span>
           </p>
           <Link href="/account" passHref onClick={handleLinkClick}>
             <Button className="w-full bg-paletteMaroonMedium hover:bg-paletteMaroonDark text-white cursor-pointer">

@@ -7,11 +7,11 @@ import SlideInPanel from "@/components/SlideInPanel";
 import CartPanelContent from "@/components/CartPanelContent";
 import AccountPanelContent from "@/components/AccountPanelContent";
 import SearchPanelContent from "@/components/SearchPanelContent";
-import type { User } from "@supabase/supabase-js";
+import { SerializableUser } from "@/lib/types";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
-  user: User | null;
+  user: SerializableUser | null;
 }
 
 const ClientLayoutWrapper = ({ children, user }: ClientLayoutWrapperProps) => {

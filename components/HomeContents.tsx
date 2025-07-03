@@ -1,8 +1,9 @@
 import HeroSection from "./HeroSection";
 import TestimonialSection from "./TestimonialSection";
 import FeaturedProductsSection from "@/components/FeaturedProductsSection";
+import { SupabaseClient } from "@supabase/supabase-js";
 
-const HomeContents = () => {
+const HomeContents = ({ supabase }: { supabase: SupabaseClient }) => {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="text-center mb-8 sm:mb-12">
@@ -22,7 +23,7 @@ const HomeContents = () => {
         <TestimonialSection />
       </div>
       <div className="mb-12 sm:mb-16">
-        <FeaturedProductsSection />
+        <FeaturedProductsSection supabase={supabase} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { ProductCard } from "./ProductCard";
 import { getFeaturedProducts } from "@/lib/data";
 import { Product } from "@/lib/types";
 import Link from "next/link";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 const adaptProductToCardProps = (product: Product): Product => ({
   id: product.id,
@@ -11,10 +12,15 @@ const adaptProductToCardProps = (product: Product): Product => ({
   price: product.price,
   image_url: product.image_url,
   alt_text: product.alt_text,
+  created_at: product.created_at
 });
 
-export default async function FeaturedProductsSection() {
-  const featuredProductsData = await getFeaturedProducts();
+interface FeaturedProductsSectionProps {
+  supabase: SupabaseClient;
+}
+
+export default async function FeaturedProductsSection({supabase}: FeaturedProductsSectionProps) {
+  const featuredProductsData = await getFeaturedProducts(supabase);
   const productsForCards = featuredProductsData.map(adaptProductToCardProps);
 
   if (!productsForCards || productsForCards.length === 0) {

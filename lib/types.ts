@@ -9,6 +9,7 @@ export interface Product {
   alt_text: string;
   category?: ProductCategory;
   is_featured?: boolean;
+  created_at: string;
 }
 
 export interface CartItem {
@@ -16,4 +17,10 @@ export interface CartItem {
   user_id: string;
   quantity: number;
   products: Product;
+}
+
+export interface SerializableUser {
+  id: string;
+  email?: string;
+  name?: string;
 }

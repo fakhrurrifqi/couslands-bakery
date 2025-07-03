@@ -5,6 +5,7 @@ import { Raleway } from "next/font/google";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import { createClient } from "@/lib/supabase/server";
 import { getCartItems } from "@/lib/data";
+import { Toaster } from "@/components/ui/sonner";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -29,11 +30,23 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
   const initialCartItems = await getCartItems();
+
+  const serializableUser = user
+    ? {
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.name || user.email,
+      }
+    : null;
+
   return (
     <html lang="en" className={`${raleway.variable} antialiased`}>
       <body className="bg-palettePinkLighter dark:bg-paletteTextDark">
         <AppProvider initialCart={initialCartItems}>
-          <ClientLayoutWrapper user={user}>{children}</ClientLayoutWrapper>
+          <ClientLayoutWrapper user={serializableUser}>
+            {children}
+          </ClientLayoutWrapper>
+          <Toaster />
         </AppProvider>
       </body>
     </html>
