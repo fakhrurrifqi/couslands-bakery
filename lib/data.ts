@@ -98,7 +98,8 @@ export async function getCartItems(): Promise<CartItem[]> {
 
   const { data, error } = await supabase
     .from("carts")
-    .select(`id, user_id, quantity, products(id,
+    .select(
+      `id, user_id, quantity, products(id,
         name,
         description,
         price,
@@ -106,7 +107,8 @@ export async function getCartItems(): Promise<CartItem[]> {
         alt_text,
         category,
         is_featured,
-        created_at)`)
+        created_at)`
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -118,7 +120,6 @@ export async function getCartItems(): Promise<CartItem[]> {
   if (!data) {
     return [];
   }
-
 
   const result: CartItem[] = data
     .filter((item) => item.products && typeof item.products === "object")
@@ -136,4 +137,104 @@ export async function getCartItems(): Promise<CartItem[]> {
     });
 
   return JSON.parse(JSON.stringify(result));
+}
+
+export async function getAllTestimonials(supabase: SupabaseClient) {
+  const { data, error } = await supabase
+    .from("testimonials")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching testimonials", error);
+    return [];
+  }
+  return data;
+}
+
+export async function getFeaturedTestimonials(supabase: SupabaseClient) {
+  const { data, error } = await supabase
+    .from("testimonials")
+    .select("*")
+    .eq("is_featured", true)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error("Error fetching featured testimonials:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function getProfile(supabase: SupabaseClient) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (error && error.code === "PGRST116") {
+    console.warn("No profile found for user. Returning a default profile.");
+    return {
+      id: user.id,
+      email: user.email || null,
+      name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+      phone_number: null,
+      address_line1: null,
+      address_line2: null,
+      city: null,
+      state_province: null,
+      postal_code: null,
+      country: null,
+    };
+  } else if (error) {
+    // For any other database error, log it and return null
+    console.error("Error fetching profile:", error);
+    return null;
+  }
+  return data;
+}
+
+export async function getProductsByCategory(
+  category: string,
+  supabase: SupabaseClient
+): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category", category);
+
+  if (error) {
+    console.error("Error fetching products by category:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+export async function searchAllProducts(
+  query: string,
+  supabase: SupabaseClient
+): Promise<Product[]> {
+  if (!query) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .ilike("name", `%${query}%`);
+
+  if (error) {
+    console.error("Error searching all products:", error);
+    return [];
+  }
+
+  return data || [];
 }

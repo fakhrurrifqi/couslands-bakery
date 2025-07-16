@@ -27,7 +27,8 @@ export async function generateMetadata({
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-  const product = await getProductById(supabase, params.id);
+  const { id } = await params;
+  const product = await getProductById(supabase, id);
 
   if (!product) {
     return {
@@ -47,7 +48,7 @@ export default async function ProductDetailPage({
 }: {
   params: { id: string };
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   const supabase = await createServerClient();
 

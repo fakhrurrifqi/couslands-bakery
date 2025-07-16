@@ -39,9 +39,9 @@ const Header = () => {
           </div>
 
           <div className="flex justify-center">
-            <Link href="#">
+            <Link href="/">
               <Image
-                src="/CB _logo _dark.svg"
+                src="/CB_logo_dark.svg"
                 alt="Cousland's Bakery Logo"
                 width={150}
                 height={50}

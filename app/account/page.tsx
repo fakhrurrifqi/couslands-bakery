@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/(auth)/actions";
+import { getProfile } from "@/lib/data";
+import AccountForm from "@/components/AccountForm";
 
 export const metadata: Metadata = {
   title: "My Account",
@@ -12,34 +14,41 @@ export const metadata: Metadata = {
 export default async function AccountPage() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data?.user) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
     redirect("/login");
+  }
+
+  const profile = await getProfile(supabase);
+  if (!profile) {
+    return <div>Could not load profile. Please contact support.</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-paletteMaroonDark dark:text-paletteMaroonRose mb-8">
-          My Account
-        </h1>
-        <div className="space-y-6 rounded-lg bg-white dark:bg-paletteMaroonDarkest p-8 shadow-xl">
-          <p className="text-lg">Welcome back, {data.user.email}!</p>
-          <p className="text-paletteGrayDark dark:text-paletteGrayLight">
-            From your account dashboard you can view your recent orders, manage
-            your shipping and billing addresses, and edit your password and
-            account details.
-          </p>
+        <div className="flex justify-between items-start mb-8">
           <div>
-            <form action={signOutAction}>
-              <Button
-                variant="destructive"
-                className="bg-red-600 hover:bg-red-700 cursor-pointer"
-              >
-                Log Out
-              </Button>
-            </form>
+            <h1 className="text-3xl font-bold text-paletteMaroonDark dark:text-paletteMaroonRose">
+              My Account
+            </h1>
+            <p className="text-paletteGrayDark dark:text-paletteGrayLight mt-1">
+              Welcome back, {profile.name || user.email}!
+            </p>
           </div>
+
+          <form action={signOutAction}>
+            <Button variant="outline" className="cursor-pointer">
+              Log Out
+            </Button>
+          </form>
+        </div>
+
+        <div className="rounded-lg bg-white dark:bg-paletteMaroonDarkest p-8 shadow-xl">
+          <h2 className="text-xl font-semibold mb-6">Profile Details</h2>
+          <AccountForm profile={profile} />
         </div>
       </div>
     </div>

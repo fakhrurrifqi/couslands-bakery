@@ -24,3 +24,26 @@ export interface SerializableUser {
   email?: string;
   name?: string;
 }
+
+export interface Testimonial {
+  id: number;
+  created_at: string;
+  author_name: string;
+  quote: string;
+  avatar_url?: string;
+  rating?: number;
+  is_featured?: boolean;
+}
+
+export interface Profile {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone_number: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  state_province: string | null;
+  postal_code: string | null;
+  country: string | null;
+}

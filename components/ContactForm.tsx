@@ -3,9 +3,11 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { User } from "@supabase/supabase-js";
 
 import { contactFormSchema } from "@/lib/validations";
 import { submitContactForm } from "@/app/contact/actions";
+import { createClient } from "@/lib/supabase/client";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import {
@@ -16,7 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import SubmitButton from "./ui/SubmitButton";
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -24,6 +26,7 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 const initialState = { message: "", errors: {}, success: false };
 
 const ContactForm = () => {
+  const [user, setUser] = useState<User | null>(null);
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: { name: "", email: "", message: "" },
@@ -32,8 +35,27 @@ const ContactForm = () => {
   const [state, formAction] = useActionState(submitContactForm, initialState);
 
   useEffect(() => {
+    const supabase = createClient();
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
+        form.setValue("email", user.email || "", { shouldValidate: true });
+        form.setValue("name", user.user_metadata?.full_name || "");
+      }
+    };
+    getUser();
+  }, [form]);
+
+  useEffect(() => {
     if (state.success) {
       form.reset();
+      if (user) {
+        form.setValue("email", user.email || "");
+        form.setValue("name", user.user_metadata?.full_name || "");
+      }
     }
     const serverErrors = state.errors;
     if (serverErrors) {
@@ -56,7 +78,7 @@ const ContactForm = () => {
         });
       }
     }
-  }, [state, form]);
+  }, [state, form, user]);
 
   return (
     <Form {...form}>
@@ -93,6 +115,7 @@ const ContactForm = () => {
                   type="email"
                   placeholder="your@email.com"
                   {...field}
+                  readOnly={!!user}
                   className="bg-white dark:bg-paletteMaroonDarkest border-paletteGrayLight dark:border-paletteMaroonDark text-paletteTextDark dark:text-paletteTextLight placeholder:text-paletteGrayMedium focus-visible:ring-paletteMaroonMedium"
                 />
               </FormControl>

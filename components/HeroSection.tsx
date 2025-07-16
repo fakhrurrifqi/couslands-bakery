@@ -3,7 +3,8 @@
 import React from "react";
 import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const HeroSection = () => {
   const { theme } = useAppContext();
@@ -42,10 +43,14 @@ const HeroSection = () => {
         Indulge in a slice of happiness at our cake shop!
       </p>
       <div className="space-y-3 sm:space-y-0 sm:space-x-4">
-        <Button className={`${learnMoreBase} ${learnMoreTheme}`}>
-          Learn More
-        </Button>
-        <Button className={`${buyNowBase} ${buyNowTheme}`}>Buy Now</Button>
+        <Link href="/about">
+          <Button className={`${learnMoreBase} ${learnMoreTheme}`}>
+            Learn More
+          </Button>
+        </Link>
+        <Link href="/products">
+          <Button className={`${buyNowBase} ${buyNowTheme}`}>Buy Now</Button>
+        </Link>
       </div>
     </div>
   );

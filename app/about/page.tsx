@@ -1,6 +1,7 @@
 import React from "react";
+import MonthlySalesChart from "@/components/MonthlySalesChart";
 
-const page = () => {
+const AboutPage = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mb-12 sm:mb-16">
       <div className="text-center mb-8 sm:mb-12 py-4">
@@ -34,16 +35,10 @@ const page = () => {
         </p>
       </div>
       <div className="bg-white dark:bg-paletteMaroonDarkest p-6 sm:p-8 rounded-lg shadow-xl">
-        <h2 className="text-2xl font-semibold text-paletteTextDark dark:text-paletteTextLight mb-6 text-center">
-          Monthly Bake Sales
-        </h2>
-        <p className="text-sm text-paletteGrayMedium dark:text-paletteGrayLight mt-4 text-center">
-          This chart shows a fictional representation of our monthly bake sales
-          to illustrate our growth and popularity.
-        </p>
+        <MonthlySalesChart />
       </div>
     </div>
   );
 };
 
-export default page;
+export default AboutPage;

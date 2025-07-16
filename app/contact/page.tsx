@@ -1,5 +1,6 @@
 import React from "react";
 import ContactForm from "@/components/ContactForm";
+import BakeryMap from "@/components/BakeryMap";
 
 const page = () => {
   return (
@@ -45,9 +46,7 @@ const page = () => {
             <li>Sunday: Closed</li>
           </ul>
           <div className="mt-6 h-64 bg-paletteGrayLight dark:bg-paletteMaroonDark rounded-md flex items-center justify-center">
-            <p className="text-paletteGrayDark dark:text-paletteGrayLight">
-              Map Placeholder
-            </p>
+            <BakeryMap />
           </div>
         </div>
       </div>
