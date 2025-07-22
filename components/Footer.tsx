@@ -1,20 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { SiInstagram, SiFacebook, SiX, SiYoutube } from "react-icons/si";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { subscribeToNewsletter } from "@/app/newsletter/actions";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [state, formAction, isPending] = useActionState(
+    subscribeToNewsletter,
+    null
+  );
 
-  const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    //handle the newsletter submission
-    alert("Thank you for subscribing!");
-  };
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.message);
+      // Optionally reset the form or give other feedback
+    } else if (state?.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
+
   return (
     <footer className="bg-paletteMaroonDarkest text-palettePinkLighter border-t-4 border-paletteMaroonDark">
       <div className="contaner mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -133,11 +144,12 @@ const Footer = () => {
               Get exclusive offers and baking tips straight to your inbox.
             </p>
             <form
-              onSubmit={handleNewsletterSubmit}
+              action={formAction}
               className="flex flex-col sm:flex-row gap-2"
             >
               <Input
                 type="email"
+                name="email"
                 placeholder="Your email"
                 required
                 className="bg-paletteMaroonDark border-paletteMaroonMedium text-white placeholder:text-paletteGrayLight flex-grow focus:ring-paletteMaroonRose"
@@ -145,8 +157,13 @@ const Footer = () => {
               <Button
                 type="submit"
                 className="bg-paletteMaroonMedium hover:bg-paletteMaroonDark text-white shrink-0"
+                disabled={isPending}
               >
-                Sign Up
+                {isPending ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
             </form>
           </div>

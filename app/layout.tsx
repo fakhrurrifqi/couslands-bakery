@@ -5,7 +5,6 @@ import { Raleway } from "next/font/google";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import { createClient } from "@/lib/supabase/server";
 import { getCartItems } from "@/lib/data";
-import { Toaster } from "@/components/ui/sonner";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -46,7 +45,6 @@ export default async function RootLayout({
           <ClientLayoutWrapper user={serializableUser}>
             {children}
           </ClientLayoutWrapper>
-          <Toaster />
         </AppProvider>
       </body>
     </html>

@@ -8,6 +8,8 @@ import CartPanelContent from "@/components/CartPanelContent";
 import AccountPanelContent from "@/components/AccountPanelContent";
 import SearchPanelContent from "@/components/SearchPanelContent";
 import { SerializableUser } from "@/lib/types";
+import PopupProvider from "@/components/PopupProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
@@ -38,6 +40,9 @@ const ClientLayoutWrapper = ({ children, user }: ClientLayoutWrapperProps) => {
           {activePanel === "search" && <SearchPanelContent />}
         </SlideInPanel>
       </div>
+
+      <PopupProvider />
+      <Toaster richColors />
     </div>
   );
 };
